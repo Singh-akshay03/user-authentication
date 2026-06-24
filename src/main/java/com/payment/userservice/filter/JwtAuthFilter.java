@@ -38,7 +38,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String email = jwtService.extractEmail(token);
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                if (jwtService.isTokenValid(token, email) && !tokenBlacklistService.isBlacklisted(token)) {
+                if (tokenBlacklistService.isBlacklisted(token)) {
+                    request.setAttribute("jwt_error", "Invalid token");
+                } else if (jwtService.isTokenValid(token, email)) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
