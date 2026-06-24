@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
 
 @Service
@@ -34,6 +35,10 @@ public class JwtService {
 
     public boolean isTokenValid(String token, String email) {
         return extractEmail(token).equals(email) && !isTokenExpired(token);
+    }
+
+    public Instant extractExpiry(String token) {
+        return extractClaims(token).getExpiration().toInstant();
     }
 
     private boolean isTokenExpired(String token) {
