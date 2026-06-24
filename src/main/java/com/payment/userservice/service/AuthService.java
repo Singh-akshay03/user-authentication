@@ -17,6 +17,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthResponse register(AuthRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -27,7 +28,7 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
         userRepository.save(user);
-        return new AuthResponse(true, "Registration successful");
+        return new AuthResponse(true, "Registration successful", null);
     }
 
     public AuthResponse login(AuthRequest request) {
@@ -36,6 +37,7 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidPasswordException("Wrong password");
         }
-        return new AuthResponse(true, "Login successful");
+        String token = jwtService.generateToken(request.getEmail());
+        return new AuthResponse(true, "Login successful", token);
     }
 }
